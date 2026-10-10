@@ -1,0 +1,517 @@
+{
+  "_readme": "套餐池。v = 馋点维度向量（meat 肉量 / fresh 清爽 / light 轻负担 / sweet 甜度 / salty 咸香重口 / cool 冰爽 / hearty 扎实碳水），匹配分 = Σ 用户画像分 × v。kcal 来自麦当劳官方 MCP list-nutrition-foods（2026-10-10 实拉）。approxPrice 为单点近似价（元），实时模式请用 MCP calculate-price 核价；mcpPriceBasis 为半价类券的可减基准。",
+  "dimensions": [
+    "meat",
+    "fresh",
+    "light",
+    "sweet",
+    "salty",
+    "cool",
+    "hearty"
+  ],
+  "couponRules": [
+    {
+      "id": "c1",
+      "name": "满 25 减 4",
+      "type": "full",
+      "cond": 25,
+      "cut": 4
+    },
+    {
+      "id": "c2",
+      "name": "板烧/鳕鱼系主堡半价",
+      "type": "mcp",
+      "cut": 0.5
+    },
+    {
+      "id": "c3",
+      "name": "甜品立减券",
+      "type": "mcp",
+      "cut": 0.5
+    },
+    {
+      "id": "c4",
+      "name": "指定套餐 8 折券",
+      "type": "ratio",
+      "ratio": 0.8
+    },
+    {
+      "id": "c5",
+      "name": "小食半价券（麦乐鸡/薯条/鸡排/鸡翅）",
+      "type": "mcp",
+      "cut": 0.5
+    },
+    {
+      "id": "c6",
+      "name": "随心配不涨价（已是底价）",
+      "type": "none"
+    }
+  ],
+  "combos": [
+    {
+      "name": "芝士安格斯厚牛堡中套餐",
+      "desc": "安格斯厚牛饼·双层芝士 + 中薯 + 中可乐",
+      "approxPrice": 52,
+      "mcpPriceBasis": 30,
+      "kcal": 696,
+      "vector": {
+        "meat": 2.8,
+        "hearty": 2,
+        "salty": 2,
+        "cool": 0.5,
+        "light": -1.5
+      },
+      "why": "安格斯厚牛饼的牛肉香浓度和普通牛堡不是一个量级，696 kcal 扎实管饱——想要'牛肉天花板'体验就点它。"
+    },
+    {
+      "name": "培根双层安格斯厚牛堡套餐",
+      "desc": "双层安格斯牛饼·培根·芝士 + 配餐",
+      "approxPrice": 58,
+      "mcpPriceBasis": 32,
+      "kcal": 987,
+      "vector": {
+        "meat": 3,
+        "hearty": 2.4,
+        "salty": 2.4,
+        "light": -1.8
+      },
+      "why": "987 kcal 的热量天花板：双牛饼加培根加芝士，咸香油脂三连击——猛干模式专属，点它就是奔着扶墙走。"
+    },
+    {
+      "name": "双层深海鳕鱼堡中套餐",
+      "desc": "双层鳕鱼柳·塔塔酱 + 中薯 + 饮品",
+      "approxPrice": 42,
+      "mcpPriceBasis": 24,
+      "kcal": 485,
+      "vector": {
+        "meat": 1,
+        "fresh": 2.2,
+        "light": 1.2,
+        "salty": 0.6,
+        "hearty": 0.8,
+        "cool": 0.3
+      },
+      "why": "麦香鱼的加强版：两层鳕鱼柳更过瘾，海味鲜嫩但负担不高——想吃鱼又嫌麦香鱼不够吃的选它。"
+    },
+    {
+      "name": "那么大鸡排 + 中薯",
+      "desc": "整块大鸡排 + 金黄中薯",
+      "approxPrice": 33,
+      "mcpPriceBasis": 16,
+      "kcal": 674,
+      "vector": {
+        "meat": 1.5,
+        "salty": 2,
+        "hearty": 1.2,
+        "cool": 0.3,
+        "light": -0.5
+      },
+      "why": "'那么大'不是修辞，是真的大：整块鸡排配薯条，咸香酥脆双主唱，撕着吃最爽。"
+    },
+    {
+      "name": "麦麦脆汁鸡双拼",
+      "desc": "琵琶腿 + 带骨里脊各一，现炸脆皮",
+      "approxPrice": 35,
+      "mcpPriceBasis": 18,
+      "kcal": 660,
+      "vector": {
+        "meat": 2.2,
+        "salty": 1.8,
+        "cool": 0.3,
+        "light": -0.5
+      },
+      "why": "脆汁鸡是麦门炸鸡的门面：脆皮爆汁、两个部位一次吃全——对'昨天剩的炸鸡'型选手是降维打击。"
+    },
+    {
+      "name": "蜜汁BBQ脆汁鸡 + 大杯玉米杯",
+      "desc": "蜜汁风味脆汁鸡 + 清甜玉米杯",
+      "approxPrice": 32,
+      "mcpPriceBasis": 17,
+      "kcal": 239,
+      "vector": {
+        "meat": 1.2,
+        "fresh": 1.5,
+        "sweet": 0.8,
+        "light": 1
+      },
+      "why": "蜜汁甜香裹着脆皮鸡，配清甜玉米杯解腻——咸甜口选手的轻盈版炸鸡局。"
+    },
+    {
+      "name": "蒜了吧黄油脆汁鸡（双拼）",
+      "desc": "蒜香黄油风味脆汁鸡 × 2",
+      "approxPrice": 32,
+      "mcpPriceBasis": 17,
+      "kcal": 328,
+      "vector": {
+        "meat": 2,
+        "salty": 1.6,
+        "fresh": 0.3,
+        "light": -0.3
+      },
+      "why": "蒜香黄油味是脆汁鸡里最有性格的：一口爆蒜香——重口爱好者点它不会错。"
+    },
+    {
+      "name": "柠萌风味焦香V翅 + 中薯",
+      "desc": "柠萌酸爽风味V翅 + 金黄中薯",
+      "approxPrice": 27,
+      "mcpPriceBasis": 14,
+      "kcal": 493,
+      "vector": {
+        "meat": 1.2,
+        "salty": 1.8,
+        "fresh": 0.8,
+        "cool": 0.3,
+        "light": -0.3
+      },
+      "why": "柠檬酸爽撞上焦香脆皮，酸味把油腻感全部中和——吃完烤串薯片后最想找的就是这个味。"
+    },
+    {
+      "name": "鲜蔬蛋沙拉叠叠卷 + 冰鲜柠檬水",
+      "desc": "蔬菜鸡蛋沙拉卷 + 酸爽柠檬水",
+      "approxPrice": 26,
+      "mcpPriceBasis": 13,
+      "kcal": 356,
+      "vector": {
+        "light": 2.4,
+        "fresh": 2.2,
+        "cool": 0.5,
+        "meat": -0.5
+      },
+      "why": "麦门里最'轻'的一顿：蔬菜沙拉卷配柠檬水，吃完没有负罪感——轻干模式的天选之餐。"
+    },
+    {
+      "name": "鸡肉蛋沙拉叠叠卷 + 零度可乐",
+      "desc": "鸡肉沙拉卷 + 零度可乐",
+      "approxPrice": 28,
+      "mcpPriceBasis": 14,
+      "kcal": 387,
+      "vector": {
+        "light": 1.8,
+        "fresh": 1.5,
+        "meat": 1,
+        "cool": 0.3
+      },
+      "why": "要蛋白质又要清爽：鸡肉沙拉卷补足饱腹感，零度可乐零糖零负担——健身日也能点的麦门餐。"
+    },
+    {
+      "name": "'苹板'支撑Pro（新品组合）",
+      "desc": "官方新品组合 · 苹果风味 × 板烧鸡腿",
+      "approxPrice": 33,
+      "mcpPriceBasis": 18,
+      "kcal": 476,
+      "vector": {
+        "fresh": 2,
+        "light": 1.2,
+        "meat": 1,
+        "hearty": 0.5,
+        "cool": 0.3
+      },
+      "why": "官方新品'苹板支撑Pro'：苹果的清甜撑起板烧的清爽——'冰镇西瓜型选手'的新品答案。"
+    },
+    {
+      "name": "专'薯鱼'你（新品组合）",
+      "desc": "官方新品组合 · 薯条 × 鳕鱼柳",
+      "approxPrice": 33,
+      "mcpPriceBasis": 18,
+      "kcal": 463,
+      "vector": {
+        "fresh": 1.8,
+        "salty": 1.2,
+        "hearty": 0.8,
+        "cool": 0.3,
+        "light": 0.5
+      },
+      "why": "谐音梗新品'专薯鱼你'：薯香配海味，咸鲜不腻——'法棍硬实有嚼劲'型选手的尝新首选。"
+    },
+    {
+      "name": "绝代双翅（新品组合）",
+      "desc": "官方新品组合 · 双拼鸡翅",
+      "approxPrice": 33,
+      "mcpPriceBasis": 18,
+      "kcal": 469,
+      "vector": {
+        "meat": 1.6,
+        "salty": 2.2,
+        "cool": 0.5,
+        "light": -0.3
+      },
+      "why": "'烤肠薯片重度爱好者'看这里：双拼翅一次两种风味，越啃越上头的咸香组合。"
+    },
+    {
+      "name": "牛气满满（新品组合）",
+      "desc": "官方新品组合 · 牛肉系全家福",
+      "approxPrice": 36,
+      "mcpPriceBasis": 20,
+      "kcal": 495,
+      "vector": {
+        "meat": 2.2,
+        "hearty": 1.6,
+        "salty": 1.4,
+        "light": -0.8
+      },
+      "why": "名字就写明了定位：牛肉管够——大块肉开撕型选手的新品特供，肉量焦虑不存在。"
+    },
+    {
+      "name": "果然多肉（新品组合）",
+      "desc": "官方新品组合 · 多肉盛宴",
+      "approxPrice": 36,
+      "mcpPriceBasis": 20,
+      "kcal": 478,
+      "vector": {
+        "meat": 2.4,
+        "hearty": 1.4,
+        "salty": 1.4,
+        "light": -0.8
+      },
+      "why": "36g 蛋白质的肉量担当：名字有多直白内容就有多实在——无肉不欢赏新派的答案。"
+    },
+    {
+      "name": "蜜汁快乐（新品组合）",
+      "desc": "官方新品组合 · 蜜汁风味轻食局",
+      "approxPrice": 30,
+      "mcpPriceBasis": 16,
+      "kcal": 258,
+      "vector": {
+        "meat": 1.2,
+        "sweet": 1,
+        "fresh": 0.5,
+        "light": 1
+      },
+      "why": "258 kcal 的轻量新品：蜜汁风味小满足——'垫垫就好'型选手的快乐不会太沉重。"
+    },
+    {
+      "name": "浓浓黑巧雪冰（大杯）",
+      "desc": "黑巧克力雪冰 · 冰沙质地",
+      "approxPrice": 21,
+      "mcpPriceBasis": 11,
+      "kcal": 444,
+      "vector": {
+        "sweet": 2.6,
+        "cool": 2,
+        "light": -0.3,
+        "hearty": 0.3
+      },
+      "why": "冰沙和黑巧的双重暴击——比雪糕更冰、比奶茶更浓，'巧克力脆皮雪糕'型选手的进阶版。"
+    },
+    {
+      "name": "抹茶阿芙佳朵 + 菠萝派",
+      "desc": "抹茶甜品 + 热乎菠萝派",
+      "approxPrice": 26,
+      "mcpPriceBasis": 13,
+      "kcal": 368,
+      "vector": {
+        "sweet": 2.8,
+        "cool": 0.3,
+        "light": -0.3,
+        "hearty": 0.5
+      },
+      "why": "冷抹茶配热派，一冷一热双甜品局——甜品脑的完整闭环，糖分快乐直接拉满。"
+    },
+    {
+      "name": "早餐双件套：猪柳蛋麦满分 + 脆薯饼",
+      "desc": "早晨限定 · 猪柳蛋堡 + 脆薯饼",
+      "approxPrice": 24,
+      "mcpPriceBasis": 13,
+      "kcal": 533,
+      "vector": {
+        "hearty": 2.2,
+        "salty": 1.2,
+        "meat": 1,
+        "cool": -1.5
+      },
+      "why": "麦门早餐的经典组合：松饼堡裹着猪柳和蛋，配脆薯饼——早晨的碳水+蛋白一次配齐。"
+    },
+    {
+      "name": "巨无霸中套餐",
+      "desc": "双层牛肉·芝士·生菜 + 中薯 + 中可乐",
+      "approxPrice": 43.5,
+      "mcpPriceBasis": 25,
+      "kcal": 513,
+      "vector": {
+        "meat": 2,
+        "hearty": 2,
+        "salty": 1.5,
+        "cool": 0.5,
+        "light": -1
+      },
+      "why": "肉量与扎实度双爆表——双牛配芝士接得住'大块肉+碳水'的双份渴望，中薯是脚手架，可乐灭火。"
+    },
+    {
+      "name": "不素之霸双层牛堡套餐",
+      "desc": "安格斯风双层牛堡 + 中薯 + 中可乐",
+      "approxPrice": 45,
+      "mcpPriceBasis": 30,
+      "kcal": null,
+      "vector": {
+        "meat": 2.5,
+        "hearty": 2,
+        "salty": 2,
+        "cool": 0.5,
+        "light": -1.5
+      },
+      "why": "重口信号拉满——双层牛肉的油脂香和咸度，就是为'越咸越香'的人准备的麦门最野选项。"
+    },
+    {
+      "name": "麦辣鸡腿堡中套餐",
+      "desc": "辣鸡腿排 + 中薯 + 中可乐",
+      "approxPrice": 38,
+      "mcpPriceBasis": 22,
+      "kcal": null,
+      "vector": {
+        "meat": 1.5,
+        "salty": 2.5,
+        "cool": 1.2,
+        "hearty": 1,
+        "light": -0.8
+      },
+      "why": "咸香+刺激是你的关键词——酥辣外皮配冰饮，烤肠薯片重度爱好者的宿命组合。"
+    },
+    {
+      "name": "板烧鸡腿堡中套餐",
+      "desc": "去皮板烧腿排 + 生菜番茄 + 饮品",
+      "approxPrice": 38,
+      "mcpPriceBasis": 22,
+      "kcal": null,
+      "vector": {
+        "meat": 1.5,
+        "fresh": 2,
+        "light": 1.5,
+        "hearty": 0.8,
+        "salty": 0.5,
+        "cool": 0.3
+      },
+      "why": "有肉欲但拒绝油腻——去皮板烧酱汁清爽、蔬菜给足，'想吃肉又要轻盈'的两全答案。"
+    },
+    {
+      "name": "麦香鱼中套餐",
+      "desc": "鳕鱼柳·塔塔酱 + 中薯 + 饮品",
+      "approxPrice": 33,
+      "mcpPriceBasis": 17,
+      "kcal": null,
+      "vector": {
+        "meat": 0.7,
+        "fresh": 2.5,
+        "light": 2,
+        "hearty": 0.5,
+        "salty": 0.4,
+        "sweet": 0.2,
+        "cool": 0.3
+      },
+      "why": "整体画像清爽低负担——鳕鱼柳轻盈、塔塔酱微酸开胃，清淡但不将就的一顿。"
+    },
+    {
+      "name": "双层吉士堡中套餐",
+      "desc": "双芝士牛肉堡 + 中薯 + 中可乐",
+      "approxPrice": 37,
+      "mcpPriceBasis": 23,
+      "kcal": null,
+      "vector": {
+        "meat": 2,
+        "hearty": 1.5,
+        "sweet": 0.8,
+        "salty": 1.2,
+        "cool": 0.5,
+        "light": -0.8
+      },
+      "why": "奶香厚度正中下怀——双份芝士的浓郁对应你的'芝士奶茶'基因，咸甜拿捏刚好。"
+    },
+    {
+      "name": "麦乐鸡 5 块 + 中薯组合",
+      "desc": "麦乐鸡·中薯·蘸酱任选",
+      "approxPrice": 30,
+      "mcpPriceBasis": 14,
+      "kcal": null,
+      "vector": {
+        "meat": 1,
+        "salty": 1.5,
+        "hearty": 1.5,
+        "sweet": 0.3,
+        "light": -0.5
+      },
+      "why": "要的不是大汉堡，是'抓着吃'的零食感——麦乐鸡配薯条，蘸酱换着来，刷剧标配。"
+    },
+    {
+      "name": "麦旋风 + 香芋派甜品档",
+      "desc": "奥利奥麦旋风 + 香芋派",
+      "approxPrice": 27,
+      "mcpPriceBasis": 13,
+      "kcal": null,
+      "vector": {
+        "meat": -0.5,
+        "fresh": -0.5,
+        "light": -0.5,
+        "sweet": 3,
+        "cool": 1.2,
+        "hearty": 0.8,
+        "salty": -0.5
+      },
+      "why": "结论明确：你不饿，你是馋——奥利奥麦旋风加香芋派，甜度直接对齐你的奶油蛋糕卷选择。"
+    },
+    {
+      "name": "圆筒冰淇淋 + 玉米杯",
+      "desc": "圆筒甜筒 + 清甜玉米杯",
+      "approxPrice": 18,
+      "mcpPriceBasis": 7,
+      "kcal": null,
+      "vector": {
+        "sweet": 1.5,
+        "cool": 1.5,
+        "light": 2,
+        "fresh": 1.5,
+        "meat": -0.5,
+        "salty": -0.5,
+        "hearty": -0.5
+      },
+      "why": "'冰镇西瓜型选手'的答案——冰爽、清甜、零负担，垫一口刚好，不会吃到扶墙。"
+    },
+    {
+      "name": "中薯条 + 冰鲜柠檬水",
+      "desc": "金黄中薯 + 酸爽柠檬水",
+      "approxPrice": 15,
+      "mcpPriceBasis": 11,
+      "kcal": null,
+      "vector": {
+        "salty": 1.5,
+        "fresh": 2,
+        "cool": 1.5,
+        "light": 1.5,
+        "sweet": 0.3,
+        "meat": -0.5
+      },
+      "why": "要的不是一顿饭，是'咸脆+冰爽'的嘴部按摩——薯条配柠檬水，微酸中和咸香。"
+    },
+    {
+      "name": "1+1 随心配（堡 + 饮）",
+      "desc": "小红卡任选：汉堡 + 饮料",
+      "approxPrice": 13.9,
+      "mcpPriceBasis": 13.9,
+      "kcal": null,
+      "vector": {
+        "meat": 0.8,
+        "fresh": 0.8,
+        "light": 1.8,
+        "salty": 0.8,
+        "sweet": 0.5,
+        "hearty": 0.5,
+        "cool": 0.5
+      },
+      "why": "信号均衡、没有极端渴望——13.9 随心配就是为'都行但想吃点'发明的，性价比满分。"
+    },
+    {
+      "name": "麦乐鸡盒（分享装）",
+      "desc": "大份鸡盒：堡+鸡+派+饮，够 2-3 人",
+      "approxPrice": 69,
+      "mcpPriceBasis": 69,
+      "kcal": null,
+      "vector": {
+        "meat": 2.2,
+        "hearty": 2.2,
+        "salty": 2,
+        "sweet": 0.5,
+        "cool": 0.5,
+        "light": -1.5
+      },
+      "why": "每个答案都在说'再多来点'——鸡盒一次集齐堡、鸡、派，适合你或你和一个同样能吃的朋友。"
+    }
+  ]
+}
