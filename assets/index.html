@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>麦门套餐侦探 · 出 2 套方案 / 手气抽 1 套</title>
+<style>
+  :root {
+    --red: #da291c; --yellow: #ffc72c;
+    --bg: #faf7f2; --card: #fff;
+    --ink: #2b2320; --muted: #8a7f78; --line: #ece5dc;
+    --green: #2e9e5b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    background: var(--bg); color: var(--ink);
+    min-height: 100vh; padding-bottom: 60px;
+  }
+  .header {
+    background: var(--red); color: #fff;
+    padding: 30px 20px 24px; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .header::after {
+    content: ""; position: absolute; right: -50px; top: -50px;
+    width: 180px; height: 180px; border-radius: 50%;
+    background: rgba(255,199,44,.25);
+  }
+  .header h1 { font-size: 24px; letter-spacing: 1px; }
+  .header p { font-size: 13px; opacity: .85; margin-top: 8px; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 16px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 16px; padding: 26px 22px; margin-top: 22px;
+    box-shadow: 0 2px 12px rgba(80,60,40,.06);
+  }
+  .home-btns { display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
+  .big-btn {
+    padding: 18px; border-radius: 14px; border: none; cursor: pointer;
+    font-size: 17px; font-weight: bold; transition: all .15s;
+  }
+  .big-btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
+  .btn-red { background: var(--red); color: #fff; }
+  .btn-yellow { background: var(--yellow); color: var(--ink); }
+  .btn-dark { background: var(--ink); color: #fff; }
+  .home-desc { font-size: 13px; color: var(--muted); line-height: 1.8; text-align: left; margin-top: 18px; }
+  .dots { display: flex; gap: 7px; justify-content: center; margin-bottom: 18px; }
+  .dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: all .2s; }
+  .dots i.on { background: var(--red); transform: scale(1.2); }
+  .q-no { font-size: 12px; color: var(--muted); letter-spacing: 2px; text-align: center; }
+  .q-title { font-size: 19px; font-weight: bold; margin: 8px 0 4px; text-align: center; }
+  .q-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; text-align: center; }
+  .opts { display: flex; flex-direction: column; gap: 12px; }
+  .opt {
+    padding: 15px 16px; border: 1.5px solid var(--line); border-radius: 14px;
+    cursor: pointer; font-size: 15.5px; font-weight: bold; transition: all .15s; background: #fff;
+  }
+  .opt small { display: block; color: var(--muted); font-size: 12px; font-weight: normal; margin-top: 4px; }
+  .opt:hover { border-color: var(--yellow); background: #fffdf5; transform: translateY(-2px); }
+  .back-btn { margin-top: 16px; background: none; border: none; color: var(--muted); cursor: pointer; font-size: 13px; display: block; margin-inline: auto; }
+  .step { display: flex; gap: 12px; margin-bottom: 20px; align-items: flex-start; }
+  .step .s-no {
+    flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
+    background: var(--yellow); color: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 900; margin-top: 2px;
+  }
+  .step .s-body { flex: 1; min-width: 0; }
+  .step h3 { font-size: 15px; margin-bottom: 8px; }
+  .persona-tag {
+    display: inline-block; background: #fffbe9; border: 1px solid #f5e3a3;
+    border-radius: 999px; padding: 4px 14px; font-size: 13px; font-weight: bold; color: var(--red);
+    margin-bottom: 10px;
+  }
+  .dimbar { margin-bottom: 8px; }
+  .dimbar .lbl { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+  .dimbar .bar { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; }
+  .dimbar .bar > div { height: 100%; background: linear-gradient(90deg, var(--yellow), var(--red)); border-radius: 999px; }
+  .cand {
+    display: flex; justify-content: space-between; align-items: center;
+    border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 12px; margin-bottom: 8px; font-size: 13.5px; background: #fffdf8;
+  }
+  .cand .score { color: var(--red); font-weight: bold; white-space: nowrap; }
+  /* 方案卡 */
+  .plans { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 560px){ .plans { grid-template-columns: 1fr; } }
+  .plan {
+    border: 1.5px solid var(--line); border-radius: 14px;
+    padding: 16px 14px; background: #fffdf8; text-align: left;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .plan.best { border-color: var(--yellow); background: linear-gradient(180deg, #fffdf5, #fff); box-shadow: 0 3px 10px rgba(255,199,44,.25); }
+  .plan .p-label {
+    align-self: flex-start; font-size: 11.5px; font-weight: bold;
+    background: var(--red); color: #fff; border-radius: 999px; padding: 2px 10px;
+  }
+  .plan .p-label.mild { background: var(--ink); opacity: .75; }
+  .plan .p-name { font-size: 17px; font-weight: 900; }
+  .plan .p-desc { font-size: 12px; color: var(--muted); }
+  .plan .p-price { font-size: 13px; color: var(--muted); }
+  .plan .p-price b { color: var(--red); font-size: 20px; }
+  .plan .orig { text-decoration: line-through; margin-left: 5px; }
+  .plan .save { color: var(--green); font-weight: bold; }
+  .plan .p-why { font-size: 12px; color: var(--muted); line-height: 1.7; border-top: 1px dashed var(--line); padding-top: 6px; margin-top: auto; }
+  .coupon-note {
+    font-size: 12.5px; color: var(--muted); line-height: 1.7;
+    background: #fff5f4; border: 1px dashed #f0b9b3; border-radius: 10px; padding: 10px 12px;
+  }
+  .bottom-btns { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+  .small-btn {
+    padding: 12px 18px; border-radius: 999px; border: none; cursor: pointer;
+    font-size: 14px; font-weight: bold; flex: 1;
+  }
+  .btn-ghost2 { background: var(--bg); color: var(--ink); border: 1px solid var(--line) !important; }
+  .hide { display: none; }
+  .note { font-size: 11.5px; color: var(--muted); margin-top: 16px; line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🍔 麦门套餐侦探</h1>
+  <p>定位 → 调套餐 → 选最优券 → 出 2 套方案 / 手气抽 1 套</p>
+</div>
+
+<div class="wrap">
+
+  <!-- 首页 -->
+  <div id="home" class="card">
+    <div class="home-btns">
+      <button class="big-btn btn-red" onclick="startQuiz()">🧭 开始定位（6 道实物题）</button>
+      <button class="big-btn btn-dark" onclick="startMbti()">🧠 性格定位（MBTI 式 · 先分析后推荐）</button>
+      <button class="big-btn btn-yellow" onclick="lucky()">🎰 手气套餐（抽 1 套）</button>
+      <input id="luckyBudget" type="number" inputmode="decimal" placeholder="预期价格 ¥（可留空 = 不限预算）"
+             style="padding:13px 16px; border:1.5px solid var(--line); border-radius:14px; font-size:15px; background:#fff; color:inherit;">
+    </div>
+    <div class="home-desc">
+      侦探工作流：<b>① 定位</b>具体食物画面摸清馋点 → <b>② 调取套餐</b>30 套阵容算匹配度 →
+      <b>③ 选最优券</b>逐张比对省最多 → <b>④ 出餐</b>给 <b>2 套方案</b>：🎯最匹配 + 🔄差异备选，不再多而杂。<br>
+      不想答题就点<b>手气套餐</b>：随机抽 1 套，可先填预期价格，只从预算内抽。<br>
+      想从性格入手就点<b>性格定位</b>：5 题 3 选 1 测出你的麦门人格（MBTI 四轴 + 干饭强度），先给性格分析报告，再按人格推荐套餐。题目来自可替换题库，每次随机轮换。
+    </div>
+  </div>
+
+  <!-- 测试 -->
+  <div id="quiz" class="card hide">
+    <div class="dots" id="dots"></div>
+    <div class="q-no" id="qNo"></div>
+    <div class="q-title" id="qTitle"></div>
+    <div class="q-sub" id="qSub"></div>
+    <div class="opts" id="opts"></div>
+    <button class="back-btn hide" id="backBtn" onclick="prev()">← 上一题</button>
+  </div>
+
+  <!-- 结果 -->
+  <div id="result" class="hide">
+    <div class="card">
+      <div class="step">
+        <div class="s-no">1</div>
+        <div class="s-body"><h3>馋点定位</h3><div id="step1"></div></div>
+      </div>
+      <div class="step">
+        <div class="s-no">2</div>
+        <div class="s-body"><h3>调取可点套餐</h3><div id="step2"></div></div>
+      </div>
+      <div class="step">
+        <div class="s-no">3</div>
+        <div class="s-body"><h3>最优优惠券与搭配</h3><div id="step3"></div></div>
+      </div>
+      <div class="step">
+        <div class="s-no">4</div>
+        <div class="s-body"><h3 id="step4Title">出餐</h3><div id="step4"></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="bottom-btns">
+        <button class="small-btn btn-ghost2" onclick="location.reload()">↺ 重新测</button>
+        <button class="small-btn btn-yellow" onclick="lucky()">🎰 重抽 1 套</button>
+      </div>
+      <div class="note" id="finalNote"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   数据层（MCP 生效后可整体替换为 query-meals / query-store-coupons 实时数据）
+   ============================================================ */
+const QUESTIONS = [
+  { q:"深夜下班，路过几个摊位——",
+    sub:"想象那个画面，脚步会停在哪边？",
+    opts:[
+      { t:"🍢 炭火烤串摊，油星滋滋作响", d:"孜然味糊你一脸", w:{ salty:2, meat:1.5, hearty:0.5 } },
+      { t:"🍧 雪花冰店，山芋泥堆成小山", d:"冰雾扑面而来", w:{ cool:2, sweet:1.5, light:0.5 } },
+      { t:"🍜 便利店关东煮，萝卜吸饱了汤", d:"咕嘟咕嘟冒着热气", w:{ light:1.2, fresh:0.8, salty:0.8, hearty:0.8 } },
+      { t:"🥞 煎饼果子摊，面糊摊开滋啦一声", d:"薄脆咔嚓咔嚓", w:{ hearty:1.5, salty:1, meat:0.5 } },
+      { t:"🍖 卤味摊，鸭脖油亮亮", d:"酱香钻进鼻子", w:{ salty:1.8, meat:1.2 } },
+      { t:"🥤 哪个都不停，就想喝口冰的", d:"解渴要紧", w:{ cool:1.5, fresh:1 } }
+    ]},
+  { q:"面包店刚开门，托盘上摆着——",
+    sub:"第一眼看中的是哪个？",
+    opts:[
+      { t:"🥐 黄油牛角包，酥皮掉渣", d:"一口下去全是油香", w:{ hearty:1.5, salty:0.8, meat:0.3 } },
+      { t:"🥖 硬实法棍切片", d:"嚼起来咔嚓咔嚓", w:{ fresh:1.2, light:1.2, hearty:0.8 } },
+      { t:"🍰 草莓奶油蛋糕卷", d:"奶油挤得冒尖", w:{ sweet:2.2, light:-0.5 } },
+      { t:"🥯 碱水结，扎实有嚼劲", d:"朴实的麦香", w:{ light:0.8, hearty:1, fresh:0.6 } },
+      { t:"🍞 厚切吐司刚出炉", d:"拿在手里还烫的", w:{ hearty:1.2, light:0.5, sweet:0.3 } },
+      { t:"🥧 蛋挞，蛋液还在颤", d:"边缘烤得焦焦的", w:{ sweet:1.8, cool:-0.5 } }
+    ]},
+  { q:"打开冰箱，最想拎出来的是——",
+    sub:"就是这个瞬间的冲动",
+    opts:[
+      { t:"🍉 冰镇西瓜，已经切好", d:"红瓤还在冒水珠", w:{ fresh:2, cool:1.5, light:1 } },
+      { t:"🧀 芝士块 + 苏打饼干", d:"咸香扎实组合", w:{ salty:1.2, hearty:1.2, meat:0.3 } },
+      { t:"🍗 昨天剩的炸鸡", d:"微波炉叮一下更香", w:{ meat:2, salty:1.2 } },
+      { t:"🥛 一大杯冰酸奶", d:"咕咚咕咚半分钟喝完", w:{ fresh:1.2, light:1.5, cool:1 } },
+      { t:"🍨 藏在最后的那支雪糕", d:"不敢多吃但想吃", w:{ sweet:1.5, cool:1.5 } },
+      { t:"🍓 半盒草莓，洗好装碗", d:"红得发亮", w:{ fresh:1.8, sweet:0.5, light:1 } }
+    ]},
+  { q:"今天这顿饭，你想要哪种满足感？",
+    sub:"选完这题，画面越来越清晰了",
+    opts:[
+      { t:"🍖 大块肉直接开撕", d:"撕肉才叫吃饭", w:{ meat:2.2, hearty:0.8 } },
+      { t:"🥗 精致轻食碗，慢慢吃", d:"吃完没负担", w:{ light:2.2, fresh:1.2 } },
+      { t:"🍚 米饭浇汁堆成山", d:"碳水炸弹的快乐", w:{ hearty:2.2, salty:0.5 } },
+      { t:"🍢 街边小串撸一把就跑", d:"过嘴瘾不正式", w:{ salty:1.2, meat:0.8, light:0.8 } },
+      { t:"🍜 一碗热汤面，呼噜呼噜", d:"汤都要喝干净", w:{ hearty:1.2, fresh:1, light:0.8 } },
+      { t:"🍰 甜品当饭，正餐是什么", d:"先吃甜的再说", w:{ sweet:2.2, cool:0.5 } }
+    ]},
+  { q:"手里这杯喝的，是——",
+    sub:"配上刚才的画面",
+    opts:[
+      { t:"🥤 冰可乐，气泡往上冲", d:"嘶——一口气", w:{ cool:1.8, sweet:0.8 } },
+      { t:"🧋 珍珠奶茶，嚼个不停", d:"奶香厚重", w:{ sweet:1.5, hearty:0.8, cool:-0.8 } },
+      { t:"☕ 冰美式，微苦回甘", d:"清醒一点", w:{ fresh:1.5, light:1, cool:0.5 } },
+      { t:"🍋 冰柠檬茶，酸甜撞在一起", d:"解腻神器", w:{ fresh:1.2, cool:1.2, sweet:0.5 } },
+      { t:"🧃 鲜榨橙汁，果肉挂壁", d:"现榨的才香", w:{ fresh:1.5, sweet:0.8 } },
+      { t:"🥛 冰牛奶，一口气见底", d:"温和顶饱", w:{ sweet:0.5, light:0.8, hearty:0.5 } }
+    ]},
+  { q:"看剧配的零食是——",
+    sub:"最后一题，答案呼之欲出",
+    opts:[
+      { t:"🍿 甜味爆米花，抓一把停不下", d:"甜香上头", w:{ sweet:1.8, hearty:0.5 } },
+      { t:"🌭 烤肠 + 薯片，越咸越香", d:"重口预警", w:{ salty:1.8, meat:0.8 } },
+      { t:"🍇 冰葡萄，一颗接一颗", d:"清爽解腻", w:{ fresh:1.8, light:0.8, cool:0.8 } },
+      { t:"🍫 巧克力脆皮雪糕", d:"咬开是脆的，里面是冰的", w:{ sweet:1.5, cool:1.5 } },
+      { t:"🥜 盐焗坚果，越嚼越香", d:"停不下来的咸", w:{ salty:1.2, hearty:0.8 } },
+      { t:"🍟 薯片大礼包，干脆面也塞进去", d:"今晚破戒", w:{ salty:1.5, hearty:1, cool:-0.5 } }
+    ]}
+];
+
+/* MBTI 式性格题库（可替换）：
+   结构 = 5 个轴，每轴挂若干"变体"（每次测试每轴随机抽 1 个变体），每个变体固定 3 个选项。
+   ➤ 想换题：往对应轴的 variants 里加/改变体即可，界面自动轮换。
+   ➤ 前四轴决定 4 字母类型（letter），第五轴是"干饭强度"修饰（intensity），不进类型字母。
+   ➤ 每个选项的 w 是馋点权重，性格通过它直接驱动套餐推荐。 */
+const MBTI_BANK = [
+  { key:"EI", variants:[
+    { q:"周五晚上，你的真实状态是——", sub:"轴 1/5 · 能量来源", opts:[
+      { t:"🎉 拉上朋友出去大吃一顿", d:"人多吃得才香", letter:"E", w:{ meat:1, hearty:0.8 } },
+      { t:"🎮 线上组队开黑，各点各的", d:"人在群里，饭在碗里", letter:"E", w:{ meat:0.5, salty:0.5 } },
+      { t:"🛋️ 一个人窝着点外卖追剧", d:"独处的快乐", letter:"I", w:{ light:1, cool:0.5 } }
+    ]},
+    { q:"到了饭点，你更愿意——", sub:"轴 1/5 · 能量来源", opts:[
+      { t:"🍻 大桌拼餐，越热闹越好", d:"社交型干饭", letter:"E", w:{ meat:1, hearty:0.6 } },
+      { t:"👥 三五好友小聚就行", d:"小圈子饭局", letter:"E", w:{ meat:0.4, fresh:0.5 } },
+      { t:"😶 找个角落自己炫完", d:"饭搭子都不用", letter:"I", w:{ light:1, fresh:0.5 } }
+    ]},
+    { q:"群里有人喊拼单麦当劳，你会——", sub:"轴 1/5 · 能量来源", opts:[
+      { t:"📣 秒回接龙，顺便组织一下", d:"拼单发起人", letter:"E", w:{ meat:0.8, salty:0.5 } },
+      { t:"👀 跟单，但只想潜水", d:"安静参与", letter:"I", w:{ light:0.6, sweet:0.4 } },
+      { t:"🙈 当没看见，自己点自己的", d:"社恐干饭法", letter:"I", w:{ light:1.2, cool:0.4 } }
+    ]}
+  ]},
+  { key:"SN", variants:[
+    { q:"麦当劳出了个没见过的新品，你会——", sub:"轴 2/5 · 尝新 vs 守旧", opts:[
+      { t:"🧪 当天就去试，前排打卡", d:"新品收割机", letter:"N", w:{ salty:1.2, meat:0.5 } },
+      { t:"🔍 先刷刷测评再决定", d:"谨慎尝鲜派", letter:"N", w:{ salty:0.5, fresh:0.5 } },
+      { t:"🏛️ 算了，还是我的经典款", d:"经典即正义", letter:"S", w:{ hearty:1.2 } }
+    ]},
+    { q:"点套餐选蘸酱，你拿哪个——", sub:"轴 2/5 · 尝新 vs 守旧", opts:[
+      { t:"🌶️ 限量新酱？必冲", d:"为了一口酱可以冒险", letter:"N", w:{ salty:1.4, meat:0.3 } },
+      { t:"🥫 甜辣酱，闭眼拿", d:"习惯的力量", letter:"S", w:{ sweet:0.5, salty:0.5 } },
+      { t:"🤷 没有的话随便，有的话试试", d:"随缘派", letter:"S", w:{ fresh:0.4, light:0.4 } }
+    ]},
+    { q:"朋友安利了一个冷门隐藏吃法，你——", sub:"轴 2/5 · 尝新 vs 守旧", opts:[
+      { t:"🔥 立刻复刻，今天就要试", d:"花活爱好者", letter:"N", w:{ salty:1, meat:0.8 } },
+      { t:"⏳ 存下来，下次顺便试", d:"观望派", letter:"N", w:{ fresh:0.4, light:0.4 } },
+      { t:"🙅 花活都是邪道，原味最稳", d:"原教旨点餐", letter:"S", w:{ hearty:1.2 } }
+    ]}
+  ]},
+  { key:"TF", variants:[
+    { q:"朋友说\"随便，你帮我点\"，你的反应是——", sub:"轴 3/5 · 理性 vs 感性", opts:[
+      { t:"🧮 秒算性价比，直接下最优解", d:"大脑先于舌头", letter:"T", w:{ light:0.6, fresh:0.4 } },
+      { t:"📏 先问一句预算多少", d:"严谨型代点", letter:"T", w:{ light:0.8 } },
+      { t:"🥰 挑个大家吃了都会开心的", d:"氛围担当", letter:"F", w:{ sweet:1, hearty:0.3 } }
+    ]},
+    { q:"种草的套餐下面全是差评，你——", sub:"轴 3/5 · 理性 vs 感性", opts:[
+      { t:"🔬 分析差评是真翻车还是有人黑", d:"证据型吃货", letter:"T", w:{ fresh:0.5, light:0.5 } },
+      { t:"➡️ 换一个，不纠结", d:"止损果断", letter:"T", w:{ light:0.8 } },
+      { t:"😭 难过三秒，然后还是点了", d:"感性战胜理智", letter:"F", w:{ sweet:0.8, hearty:0.4 } }
+    ]},
+    { q:"还差 3 元凑满减，你会——", sub:"轴 3/5 · 理性 vs 感性", opts:[
+      { t:"🧾 精确计算，选性价比最高的凑", d:"凑单艺术家", letter:"T", w:{ light:0.6, fresh:0.4 } },
+      { t:"🤔 随手点个小的得了", d:"差不多先生", letter:"T", w:{ light:0.4, salty:0.4 } },
+      { t:"🍦 那必须加个甜筒，开心无价", d:"情绪优先", letter:"F", w:{ sweet:1.4 } }
+    ]}
+  ]},
+  { key:"JP", variants:[
+    { q:"走进麦当劳那一刻，你——", sub:"轴 4/5 · 计划 vs 即兴", opts:[
+      { t:"📋 早想好了，进门直接报菜名", d:"零犹豫", letter:"J", w:{ hearty:0.8, salty:0.3 } },
+      { t:"📱 打开 App 复购上次的订单", d:"闭环点餐", letter:"J", w:{ hearty:0.5, light:0.4 } },
+      { t:"🎲 站在屏幕前，现想现选", d:"看心情派", letter:"P", w:{ fresh:0.8, cool:0.5 } }
+    ]},
+    { q:"出发去吃麦当劳前，你会——", sub:"轴 4/5 · 计划 vs 即兴", opts:[
+      { t:"🗺️ 查好门店、优惠和取餐时间", d:"攻略型选手", letter:"J", w:{ light:0.6, fresh:0.3 } },
+      { t:"🚶 出门再说，走哪算哪", d:"city walk 式干饭", letter:"P", w:{ fresh:0.8, cool:0.4 } },
+      { t:"🌀 正在出门，点单还没想", d:"极限即兴", letter:"P", w:{ salty:0.5, meat:0.5 } }
+    ]},
+    { q:"套餐里的配菜和饮品，你的策略是——", sub:"轴 4/5 · 计划 vs 即兴", opts:[
+      { t:"📐 每一项都按计划搭配好", d:"结构化点餐", letter:"J", w:{ hearty:0.6, light:0.4 } },
+      { t:"🍔 主食固定，配菜看当日心情", d:"半计划半即兴", letter:"J", w:{ hearty:0.4, fresh:0.4 } },
+      { t:"🎰 全看当天屏幕上想点啥", d:"纯即兴", letter:"P", w:{ fresh:1, cool:0.5 } }
+    ]}
+  ]},
+  { key:"APPETITE", variants:[
+    { q:"说真的，你今天有多能吃？——", sub:"轴 5/5 · 干饭强度", opts:[
+      { t:"🐺 能吃下一头牛", d:"干饭强度拉满", w:{ meat:1.2, hearty:1 }, intensity:"🐺 猛干模式 · 建议直接上大份量" },
+      { t:"🧍 正常一顿的量", d:"标准干饭人", w:{ salty:0.3, hearty:0.3 }, intensity:"🧍 标准模式 · 常规套餐刚刚好" },
+      { t:"🍃 垫垫就好，别撑着", d:"轻食心态", w:{ light:1.2, fresh:0.5 }, intensity:"🍃 轻干模式 · 已自动偏向轻盈小份" }
+    ]},
+    { q:"上一顿是什么时候吃的？——", sub:"轴 5/5 · 干饭强度", opts:[
+      { t:"⏰ 饿过劲了，胃在抗议", d:"饥饿值 MAX", w:{ meat:1, hearty:1 }, intensity:"🐺 猛干模式 · 建议直接上大份量" },
+      { t:"🕐 正好到饭点", d:"标准节奏", w:{ hearty:0.3, salty:0.3 }, intensity:"🧍 标准模式 · 常规套餐刚刚好" },
+      { t:"🍪 刚吃过，就是嘴馋", d:"馋大于饿", w:{ sweet:0.8, cool:0.5 }, intensity:"🍃 轻干模式 · 已自动偏向解馋小食" }
+    ]},
+    { q:"吃完这顿的剩余部分，你的打算是——", sub:"轴 5/5 · 干饭强度", opts:[
+      { t:"🛡️ 必须有余粮，最好再来一份", d:"囤粮型选手", w:{ meat:0.8, hearty:1 }, intensity:"🐺 猛干模式 · 建议直接上大份量" },
+      { t:"🍱 刚好吃完不打包", d:"光盘主义", w:{ hearty:0.3, salty:0.3 }, intensity:"🧍 标准模式 · 常规套餐刚刚好" },
+      { t:"🥡 吃不完就打包，明天的事明天说", d:"佛系干饭", w:{ light:0.8, fresh:0.4 }, intensity:"🍃 轻干模式 · 已自动偏向轻盈小份" }
+    ]}
+  ]}
+];
+
+/* MBTI 字母解读 & 原型 */
+const MBTI_LETTER = {
+  E:"🟡 E 外向干饭 · 人多吃得才香，套餐要经得起分",
+  I:"🔵 I 独食主义者 · 一个人的套餐，刚好才是最好",
+  S:"🟤 S 守味觉传统 · 经典款就是你的舒适区",
+  N:"🟣 N 新品收割机 · 舌头永远在等点刺激",
+  T:"⚪ T 性价比大脑 · 每一分钱都要吃在刀刃上",
+  F:"💗 F 情绪干饭人 · 吃什么不重要，吃得开心才重要",
+  J:"🟠 J 计划型点餐 · 进门直接报菜名的果断选手",
+  P:"🟢 P 即兴型选手 · 屏幕前的临场发挥大师"
+};
+function mbtiArchetype(t){
+  if (t.includes("N") && t.includes("T")) return { name:"麦门分析家 · 冷静点单派", why:"你点餐靠脑子：算分量、算性价比、拒绝踩雷——清爽低负担、结构清晰的组合最合你胃口。" };
+  if (t.includes("N") && t.includes("F")) return { name:"麦门理想家 · 氛围干饭派", why:"你吃的是情绪价值：新鲜感加一点甜，才配得上你的想象力——带甜头、有惊喜感的组合是你的菜。" };
+  if (t.includes("S") && t.includes("J")) return { name:"麦门守护者 · 经典忠实派", why:"你认准了就不换：扎实、管饱、 decades 如一日——经典大份量组合是对你忠诚度最好的回报。" };
+  if (t.includes("S") && t.includes("P")) return { name:"麦门守护者 · 即兴肉食派", why:"你随性但嘴很诚：大的、香的、实在的——不用花哨，肉到位就赢。" };
+  if (t.includes("N") && t.includes("P")) return { name:"麦门探险家 · 刺激尝鲜派", why:"你的舌头在找刺激：重口、带劲、有点上头——越有性格的组合你越买账。" };
+  return { name:"麦门外交家 · 快乐分享派", why:"你点餐像在照顾所有人：甜的暖的都不亏——幸福感拉满的组合最适合你。" };
+}
+
+/* 每次测试从选项池随机抽 3 个，保证每次体验不同（MBTI 模式固定 2 选项全量出现） */
+let sessionOpts = [];
+let mode = "quiz"; // quiz | mbti
+function shuffle(arr){
+  const a = [...arr];
+  for (let i = a.length-1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function rollSessionOpts(){
+  if (mode === "mbti"){
+    // 性格模式：每轴随机抽 1 个变体 → 5 题 × 3 选项，题库自动轮换
+    sessionQ = []; sessionOpts = [];
+    for (const axis of MBTI_BANK){
+      const v = axis.variants[Math.floor(Math.random() * axis.variants.length)];
+      sessionQ.push({ q: v.q, sub: v.sub });
+      sessionOpts.push(v.opts);
+    }
+  } else {
+    sessionQ = QUESTIONS.map(q => ({ q: q.q, sub: q.sub }));
+    sessionOpts = QUESTIONS.map(q => shuffle(q.opts).slice(0, 3));
+  }
+}
+
+/* 套餐池 30 套（数据源：麦当劳官方 MCP 营养数据库 list-nutrition-foods 实拉，kcal 为官方值；
+   价格为单点近似价；mcpPrice = 半价类券可减的基准） */
+const COMBOS = [
+  { name:"芝士安格斯厚牛堡中套餐", desc:"安格斯厚牛饼·双层芝士 + 中薯 + 中可乐", price:52, mcpPrice:30, kcal:696,
+    v:{ meat:2.8, hearty:2, salty:2, cool:0.5, light:-1.5 },
+    why:"安格斯厚牛饼的牛肉香浓度和普通牛堡不是一个量级，696 kcal 扎实管饱——想要'牛肉天花板'体验就点它。" },
+  { name:"培根双层安格斯厚牛堡套餐", desc:"双层安格斯牛饼·培根·芝士 + 配餐", price:58, mcpPrice:32, kcal:987,
+    v:{ meat:3, hearty:2.4, salty:2.4, light:-1.8 },
+    why:"987 kcal 的热量天花板：双牛饼加培根加芝士，咸香油脂三连击——猛干模式专属，点它就是奔着扶墙走。" },
+  { name:"双层深海鳕鱼堡中套餐", desc:"双层鳕鱼柳·塔塔酱 + 中薯 + 饮品", price:42, mcpPrice:24, kcal:485,
+    v:{ meat:1, fresh:2.2, light:1.2, salty:0.6, hearty:0.8, cool:0.3 },
+    why:"麦香鱼的加强版：两层鳕鱼柳更过瘾，海味鲜嫩但负担不高——想吃鱼又嫌麦香鱼不够吃的选它。" },
+  { name:"那么大鸡排 + 中薯", desc:"整块大鸡排 + 金黄中薯", price:33, mcpPrice:16, kcal:674,
+    v:{ meat:1.5, salty:2, hearty:1.2, cool:0.3, light:-0.5 },
+    why:"'那么大'不是修辞，是真的大：整块鸡排配薯条，咸香酥脆双主唱，撕着吃最爽。" },
+  { name:"麦麦脆汁鸡双拼", desc:"琵琶腿 + 带骨里脊各一，现炸脆皮", price:35, mcpPrice:18, kcal:660,
+    v:{ meat:2.2, salty:1.8, cool:0.3, light:-0.5 },
+    why:"脆汁鸡是麦门炸鸡的门面：脆皮爆汁、两个部位一次吃全——对'昨天剩的炸鸡'型选手是降维打击。" },
+  { name:"蜜汁BBQ脆汁鸡 + 大杯玉米杯", desc:"蜜汁风味脆汁鸡 + 清甜玉米杯", price:32, mcpPrice:17, kcal:239,
+    v:{ meat:1.2, fresh:1.5, sweet:0.8, light:1 },
+    why:"蜜汁甜香裹着脆皮鸡，配清甜玉米杯解腻——咸甜口选手的轻盈版炸鸡局。" },
+  { name:"蒜了吧黄油脆汁鸡（双拼）", desc:"蒜香黄油风味脆汁鸡 × 2", price:32, mcpPrice:17, kcal:328,
+    v:{ meat:2, salty:1.6, fresh:0.3, light:-0.3 },
+    why:"蒜香黄油味是脆汁鸡里最有性格的：一口爆蒜香——重口爱好者点它不会错。" },
+  { name:"柠萌风味焦香V翅 + 中薯", desc:"柠萌酸爽风味V翅 + 金黄中薯", price:27, mcpPrice:14, kcal:493,
+    v:{ meat:1.2, salty:1.8, fresh:0.8, cool:0.3, light:-0.3 },
+    why:"柠檬酸爽撞上焦香脆皮，酸味把油腻感全部中和——吃完烤串薯片后最想找的就是这个味。" },
+  { name:"鲜蔬蛋沙拉叠叠卷 + 冰鲜柠檬水", desc:"蔬菜鸡蛋沙拉卷 + 酸爽柠檬水", price:26, mcpPrice:13, kcal:356,
+    v:{ light:2.4, fresh:2.2, cool:0.5, meat:-0.5 },
+    why:"麦门里最'轻'的一顿：蔬菜沙拉卷配柠檬水，吃完没有负罪感——轻干模式的天选之餐。" },
+  { name:"鸡肉蛋沙拉叠叠卷 + 零度可乐", desc:"鸡肉沙拉卷 + 零度可乐", price:28, mcpPrice:14, kcal:387,
+    v:{ light:1.8, fresh:1.5, meat:1, cool:0.3 },
+    why:"要蛋白质又要清爽：鸡肉沙拉卷补足饱腹感，零度可乐零糖零负担——健身日也能点的麦门餐。" },
+  { name:"'苹板'支撑Pro（新品组合）", desc:"官方新品组合 · 苹果风味 × 板烧鸡腿", price:33, mcpPrice:18, kcal:476,
+    v:{ fresh:2, light:1.2, meat:1, hearty:0.5, cool:0.3 },
+    why:"官方新品'苹板支撑Pro'：苹果的清甜撑起板烧的清爽——'冰镇西瓜型选手'的新品答案。" },
+  { name:"专'薯鱼'你（新品组合）", desc:"官方新品组合 · 薯条 × 鳕鱼柳", price:33, mcpPrice:18, kcal:463,
+    v:{ fresh:1.8, salty:1.2, hearty:0.8, cool:0.3, light:0.5 },
+    why:"谐音梗新品'专薯鱼你'：薯香配海味，咸鲜不腻——'法棍硬实有嚼劲'型选手的尝新首选。" },
+  { name:"绝代双翅（新品组合）", desc:"官方新品组合 · 双拼鸡翅", price:33, mcpPrice:18, kcal:469,
+    v:{ meat:1.6, salty:2.2, cool:0.5, light:-0.3 },
+    why:"'烤肠薯片重度爱好者'看这里：双拼翅一次两种风味，越啃越上头的咸香组合。" },
+  { name:"牛气满满（新品组合）", desc:"官方新品组合 · 牛肉系全家福", price:36, mcpPrice:20, kcal:495,
+    v:{ meat:2.2, hearty:1.6, salty:1.4, light:-0.8 },
+    why:"名字就写明了定位：牛肉管够——大块肉开撕型选手的新品特供，肉量焦虑不存在。" },
+  { name:"果然多肉（新品组合）", desc:"官方新品组合 · 多肉盛宴", price:36, mcpPrice:20, kcal:478,
+    v:{ meat:2.4, hearty:1.4, salty:1.4, light:-0.8 },
+    why:"36g 蛋白质的肉量担当：名字有多直白内容就有多实在——无肉不欢赏新派的答案。" },
+  { name:"蜜汁快乐（新品组合）", desc:"官方新品组合 · 蜜汁风味轻食局", price:30, mcpPrice:16, kcal:258,
+    v:{ meat:1.2, sweet:1, fresh:0.5, light:1 },
+    why:"258 kcal 的轻量新品：蜜汁风味小满足——'垫垫就好'型选手的快乐不会太沉重。" },
+  { name:"浓浓黑巧雪冰（大杯）", desc:"黑巧克力雪冰 · 冰沙质地", price:21, mcpPrice:11, kcal:444,
+    v:{ sweet:2.6, cool:2, light:-0.3, hearty:0.3 },
+    why:"冰沙和黑巧的双重暴击——比雪糕更冰、比奶茶更浓，'巧克力脆皮雪糕'型选手的进阶版。" },
+  { name:"抹茶阿芙佳朵 + 菠萝派", desc:"抹茶甜品 + 热乎菠萝派", price:26, mcpPrice:13, kcal:368,
+    v:{ sweet:2.8, cool:0.3, light:-0.3, hearty:0.5 },
+    why:"冷抹茶配热派，一冷一热双甜品局——甜品脑的完整闭环，糖分快乐直接拉满。" },
+  { name:"早餐双件套：猪柳蛋麦满分 + 脆薯饼", desc:"早晨限定 · 猪柳蛋堡 + 脆薯饼", price:24, mcpPrice:13, kcal:533,
+    v:{ hearty:2.2, salty:1.2, meat:1, cool:-1.5 },
+    why:"麦门早餐的经典组合：松饼堡裹着猪柳和蛋，配脆薯饼——早晨的碳水+蛋白一次配齐。" },
+  { name:"巨无霸中套餐", desc:"双层牛肉·芝士·生菜 + 中薯 + 中可乐", price:43.5, mcpPrice:25, kcal:513,
+    v:{ meat:2, hearty:2, salty:1.5, cool:0.5, light:-1 }, why:"肉量与扎实度双爆表——双牛配芝士接得住'大块肉+碳水'的双份渴望，中薯是脚手架，可乐灭火。" },
+  { name:"不素之霸双层牛堡套餐", desc:"安格斯风双层牛堡 + 中薯 + 中可乐", price:45, mcpPrice:30,
+    v:{ meat:2.5, hearty:2, salty:2, cool:0.5, light:-1.5 }, why:"重口信号拉满——双层牛肉的油脂香和咸度，就是为'越咸越香'的人准备的麦门最野选项。" },
+  { name:"麦辣鸡腿堡中套餐", desc:"辣鸡腿排 + 中薯 + 中可乐", price:38, mcpPrice:22,
+    v:{ meat:1.5, salty:2.5, cool:1.2, hearty:1, light:-0.8 }, why:"咸香+刺激是你的关键词——酥辣外皮配冰饮，烤肠薯片重度爱好者的宿命组合。" },
+  { name:"板烧鸡腿堡中套餐", desc:"去皮板烧腿排 + 生菜番茄 + 饮品", price:38, mcpPrice:22,
+    v:{ meat:1.5, fresh:2, light:1.5, hearty:0.8, salty:0.5, cool:0.3 }, why:"有肉欲但拒绝油腻——去皮板烧酱汁清爽、蔬菜给足，'想吃肉又要轻盈'的两全答案。" },
+  { name:"麦香鱼中套餐", desc:"鳕鱼柳·塔塔酱 + 中薯 + 饮品", price:33, mcpPrice:17,
+    v:{ meat:0.7, fresh:2.5, light:2, hearty:0.5, salty:0.4, sweet:0.2, cool:0.3 }, why:"整体画像清爽低负担——鳕鱼柳轻盈、塔塔酱微酸开胃，清淡但不将就的一顿。" },
+  { name:"双层吉士堡中套餐", desc:"双芝士牛肉堡 + 中薯 + 中可乐", price:37, mcpPrice:23,
+    v:{ meat:2, hearty:1.5, sweet:0.8, salty:1.2, cool:0.5, light:-0.8 }, why:"奶香厚度正中下怀——双份芝士的浓郁对应你的'芝士奶茶'基因，咸甜拿捏刚好。" },
+  { name:"麦乐鸡 5 块 + 中薯组合", desc:"麦乐鸡·中薯·蘸酱任选", price:30, mcpPrice:14,
+    v:{ meat:1, salty:1.5, hearty:1.5, sweet:0.3, light:-0.5 }, why:"要的不是大汉堡，是'抓着吃'的零食感——麦乐鸡配薯条，蘸酱换着来，刷剧标配。" },
+  { name:"麦旋风 + 香芋派甜品档", desc:"奥利奥麦旋风 + 香芋派", price:27, mcpPrice:13,
+    v:{ meat:-0.5, fresh:-0.5, light:-0.5, sweet:3, cool:1.2, hearty:0.8, salty:-0.5 }, why:"结论明确：你不饿，你是馋——奥利奥麦旋风加香芋派，甜度直接对齐你的奶油蛋糕卷选择。" },
+  { name:"圆筒冰淇淋 + 玉米杯", desc:"圆筒甜筒 + 清甜玉米杯", price:18, mcpPrice:7,
+    v:{ sweet:1.5, cool:1.5, light:2, fresh:1.5, meat:-0.5, salty:-0.5, hearty:-0.5 }, why:"'冰镇西瓜型选手'的答案——冰爽、清甜、零负担，垫一口刚好，不会吃到扶墙。" },
+  { name:"中薯条 + 冰鲜柠檬水", desc:"金黄中薯 + 酸爽柠檬水", price:15, mcpPrice:11,
+    v:{ salty:1.5, fresh:2, cool:1.5, light:1.5, sweet:0.3, meat:-0.5 }, why:"要的不是一顿饭，是'咸脆+冰爽'的嘴部按摩——薯条配柠檬水，微酸中和咸香。" },
+  { name:"1+1 随心配（堡 + 饮）", desc:"小红卡任选：汉堡 + 饮料", price:13.9, mcpPrice:13.9,
+    v:{ meat:0.8, fresh:0.8, light:1.8, salty:0.8, sweet:0.5, hearty:0.5, cool:0.5 }, why:"信号均衡、没有极端渴望——13.9 随心配就是为'都行但想吃点'发明的，性价比满分。" },
+  { name:"麦乐鸡盒（分享装）", desc:"大份鸡盒：堡+鸡+派+饮，够 2-3 人", price:69, mcpPrice:69,
+    v:{ meat:2.2, hearty:2.2, salty:2, sweet:0.5, cool:0.5, light:-1.5 }, why:"每个答案都在说'再多来点'——鸡盒一次集齐堡、鸡、派，适合你或你和一个同样能吃的朋友。" }
+];
+
+/* 内置券库（模拟麦麦省；MCP 生效后换 query-store-coupons 真实券） */
+const COUPONS = [
+  { id:"c1", name:"满 25 减 4", type:"full", cond:25, cut:4, fit:()=>true },
+  { id:"c2", name:"板烧/鳕鱼系主堡半价", type:"mcp", cut:0.5, fit:c=>/板烧|麦香鱼|鳕鱼|苹板|专薯鱼/.test(c.name) },
+  { id:"c3", name:"甜品立减券", type:"mcp", cut:0.5, fit:c=>/麦旋风|圆筒|派|雪冰|阿芙佳朵/.test(c.name) },
+  { id:"c4", name:"指定套餐 8 折券", type:"ratio", ratio:0.8, fit:c=>/堡套餐|鸡盒|安格斯|牛气满满|果然多肉|巨无霸/.test(c.name) },
+  { id:"c5", name:"小食半价券（麦乐鸡/薯条/鸡排/鸡翅）", type:"mcp", cut:0.5, fit:c=>/麦乐鸡|薯条|鸡排|脆汁鸡|V翅/.test(c.name) },
+  { id:"c6", name:"随心配不涨价（已是底价）", type:"none", fit:c=>/随心配/.test(c.name) }
+];
+
+let qi = 0, answers = [];
+
+function applyCoupon(c){
+  const usable = COUPONS.filter(cp => cp.fit(c));
+  let best = null;
+  for (const cp of usable){
+    let final = c.price, saved = 0;
+    if (cp.type === "full" && c.price >= cp.cond){ final = c.price - cp.cut; saved = cp.cut; }
+    else if (cp.type === "mcp"){ final = c.price - c.mcpPrice * cp.cut; saved = c.mcpPrice * cp.cut; }
+    else if (cp.type === "ratio"){ final = c.price * cp.ratio; saved = c.price - final; }
+    if (saved > (best ? best.saved : 0)) best = { cp, final, saved };
+  }
+  return best || { cp:null, final:c.price, saved:0 };
+}
+
+/* ============ 测试 ============ */
+function startQuiz(){
+  mode = "quiz"; qi = 0; answers = new Array(QUESTIONS.length).fill(null);
+  rollSessionOpts();
+  document.getElementById("home").classList.add("hide");
+  document.getElementById("result").classList.add("hide");
+  document.getElementById("quiz").classList.remove("hide");
+  render();
+}
+function startMbti(){
+  mode = "mbti"; qi = 0; answers = new Array(MBTI_BANK.length).fill(null);
+  rollSessionOpts();
+  document.getElementById("home").classList.add("hide");
+  document.getElementById("result").classList.add("hide");
+  document.getElementById("quiz").classList.remove("hide");
+  render();
+}
+function render(){
+  const q = sessionQ[qi], opts = sessionOpts[qi];
+  document.getElementById("qNo").textContent = "Q" + (qi+1) + " / " + sessionOpts.length;
+  document.getElementById("qTitle").textContent = q.q;
+  document.getElementById("qSub").textContent = q.sub;
+  document.getElementById("dots").innerHTML = QUESTIONS.map((_,i) =>
+    `<i class="${i===qi?'on':''}"></i>`).join("");
+  document.getElementById("opts").innerHTML = opts.map((o,i) =>
+    `<div class="opt" onclick="pick(${i})">${o.t}${o.d?`<small>${o.d}</small>`:""}</div>`).join("");
+  document.getElementById("backBtn").classList.toggle("hide", qi === 0);
+}
+function pick(i){
+  answers[qi] = i;
+  if (qi < sessionOpts.length-1){ qi++; render(); }
+  else finish(answers, false);
+}
+function prev(){ if (qi > 0){ qi--; render(); } }
+
+/* ============ 方案挑选：定位测试出 2 套（主推 + 差异备选），手气出 1 套 ============ */
+function pickPlans(ranked, score, count){
+  const used = new Set(), plans = [];
+  const push = (c, label, mild=true) => {
+    if (c && !used.has(c.name)){ plans.push({...c, _label:label, _mild:mild}); used.add(c.name); }
+  };
+  if (count === 1){
+    // 手气模式：从预算内随机抽 1 套（ranked 已被预算过滤）
+    const c = ranked[Math.floor(Math.random() * ranked.length)];
+    push(c, "🎰 手气之选", false);
+    return plans;
+  }
+  // 常规：主推 + 差异化备选
+  push(ranked[0], "🎯 最匹配", false);
+  const rest = ranked.filter(c => !used.has(c.name));
+  const alt =
+    rest.find(c => c.price <= 15 && c.name !== ranked[0].name) ||                                   // 性价比
+    [...rest].sort((a,b) => ((b.v.fresh||0)+(b.v.light||0)) - ((a.v.fresh||0)+(a.v.light||0)))[0] || // 清爽向
+    [...rest].sort((a,b) => b.price - a.price)[0];                                                   // 价格差异最大
+  push(alt, "🔄 换换口味");
+  return plans.slice(0, count);
+}
+
+/* ============ 主流程 ============ */
+function finish(ansArr, isLucky, budget){
+  const score = {};
+  if (isLucky) score._lucky = true;
+  else ansArr.forEach((ai, qidx) => {
+    const w = sessionOpts[qidx][ai].w;
+    for (const d in w) score[d] = (score[d]||0) + w[d];
+  });
+
+  let ranked, budgetNote = "";
+  if (isLucky){
+    let pool = COMBOS.map(c => ({ ...c, _deal: applyCoupon(c) }));
+    if (budget > 0){
+      const inBudget = pool.filter(c => c._deal.final <= budget);
+      if (inBudget.length){ pool = inBudget; budgetNote = `（已按预期价格 ≤ ¥${budget} 过滤）`; }
+      else budgetNote = `（预算 ¥${budget} 内没有可抽套餐，已放开限制）`;
+    }
+    ranked = pool.sort(() => Math.random() - 0.5);
+  } else {
+    ranked = COMBOS.map(c => {
+      let s = 0;
+      for (const d in c.v) s += (score[d]||0) * c.v[d];
+      return { ...c, _s: s };
+    }).sort((a,b) => b._s - a._s || Math.random() - 0.5);
+  }
+
+  const plans = pickPlans(ranked, score, isLucky ? 1 : 2).map(p => ({...p, _deal: p._deal || applyCoupon(p)}));
+
+  // STEP1
+  let s1;
+  if (isLucky){
+    s1 = `<div class="persona-tag">🎰 天选之人 · 不问不选直接抽</div>
+          <div class="pool-note" style="font-size:12.5px;color:var(--muted)">跳过定位直接抽，1 套手气套餐已上桌。</div>`;
+  } else if (mode === "mbti"){
+    // 性格分析先行：类型 + 强度 + 原型 + 字母解读 + 性格→馋点换算
+    const letters = answers.map((ai, qidx) => sessionOpts[qidx][ai].letter).filter(Boolean);
+    const type = letters.join("");
+    const arch = mbtiArchetype(type);
+    const intensity = sessionOpts[4] && sessionOpts[4][answers[4]] ? sessionOpts[4][answers[4]].intensity : "";
+    const DIMNAME = { meat:"🥩 肉量", fresh:"🥬 清爽", light:"🍃 轻负担", sweet:"🍬 甜度", salty:"🧂 咸香重口", cool:"🧊 冰爽", hearty:"🍚 扎实碳水" };
+    const dims = Object.entries(score).filter(([,v]) => v > 0).sort((a,b) => b[1]-a[1]).slice(0,4);
+    const maxV = Math.max(...dims.map(([,v]) => v), 1);
+    s1 = `<div style="font-size:34px;font-weight:900;letter-spacing:6px;color:var(--red);margin-bottom:6px">${type}</div>
+          <div class="persona-tag">${arch.name}</div>
+          ${intensity?`<div class="persona-tag" style="background:#eef7f0;border-color:#bfe3c9;color:var(--green);margin-left:6px">${intensity}</div>`:""}
+          <div style="font-size:13px;line-height:1.9;text-align:left;margin:10px 0 14px">` +
+      letters.map(l => `<div>${MBTI_LETTER[l]}</div>`).join("") +
+      `</div>
+       <div style="font-size:13px;font-weight:bold;text-align:left;margin-bottom:8px">🧬 性格 → 馋点换算</div>` +
+      dims.map(([d,v]) => `<div class="dimbar">
+        <div class="lbl"><span>${DIMNAME[d]||d}</span><span>${v}</span></div>
+        <div class="bar"><div style="width:${Math.round(v/maxV*100)}%"></div></div></div>`).join("") +
+      `<div class="reason" style="margin-top:14px">🔍 <b>性格分析：</b>${arch.why}下面按这个人格给你配餐。</div>`;
+  } else {
+    const DIMNAME = { meat:"🥩 肉量", fresh:"🥬 清爽", light:"🍃 轻负担", sweet:"🍬 甜度", salty:"🧂 咸香重口", cool:"🧊 冰爽", hearty:"🍚 扎实碳水" };
+    const dims = Object.entries(score).filter(([,v]) => v > 0).sort((a,b) => b[1]-a[1]).slice(0,4);
+    const maxV = Math.max(...dims.map(([,v]) => v), 1);
+    s1 = `<div class="persona-tag">${personName(score)}</div>` +
+      dims.map(([d,v]) => `<div class="dimbar">
+        <div class="lbl"><span>${DIMNAME[d]||d}</span><span>${v}</span></div>
+        <div class="bar"><div style="width:${Math.round(v/maxV*100)}%"></div></div></div>`).join("");
+  }
+
+  // STEP2
+  const s2 = isLucky
+    ? `<div style="font-size:12.5px;color:var(--muted)">🎲 手气模式：从 ${ranked.length} 套${budget ? "预算内" : ""}套餐中随机抽出 1 套${budgetNote}</div>`
+    : `<div style="font-size:12.5px;color:var(--muted);margin-bottom:10px">套餐池 ${COMBOS.length} 套，匹配度前 3：</div>` +
+      ranked.slice(0,3).map((c,i) =>
+        `<div class="cand"><span>${i+1}. ${c.name} <small style="color:var(--muted)">¥${c.price}</small></span>
+         <span class="score">${Math.round(c._s*10)/10 + " 分"}</span></div>`).join("");
+
+  // STEP3
+  const best = plans[0];
+  const totalSaved = plans.reduce((a,p) => a + p._deal.saved, 0);
+  const s3 = best._deal.cp
+    ? `<div class="coupon-note">
+         🎟️ ${isLucky ? "这套套餐" : "主推方案"}用券：<b style="color:var(--red)">${best._deal.cp.name}</b>——
+         原价 ¥${best.price.toFixed(1)} → 券后 <b>¥${best._deal.final.toFixed(1)}</b>，省 ¥${best._deal.saved.toFixed(1)}。
+         ${!isLucky ? `<br>2 套方案各自已配最优券，合计可省 <b style="color:var(--green)">¥${totalSaved.toFixed(1)}</b>。` : ""}
+       </div>`
+    : `<div class="coupon-note">当前套餐暂无适用立减券${isLucky?"": "（多为已到底价的随心配类）"}。</div>`;
+
+  // STEP4
+  document.getElementById("step4Title").textContent = isLucky ? "出餐（手气 1 套）" : "出餐（2 套方案任选）";
+  const s4 = `<div class="plans">` + plans.map(p =>
+    `<div class="plan ${p._mild ? "" : "best"}">
+       <span class="p-label ${p._mild ? "mild" : ""}">${p._label}</span>
+       <div class="p-name">${p.name}</div>
+       <div class="p-desc">${p.desc}</div>
+       <div class="p-price">
+         <b>¥${p._deal.final.toFixed(1)}</b>
+         ${p._deal.saved>0?`<span class="orig">¥${p.price.toFixed(1)}</span><span class="save">省¥${p._deal.saved.toFixed(1)}</span>`:""}
+         ${p._deal.cp?`<br><small>🎟️ ${p._deal.cp.name}</small>`:""}
+       </div>
+       <div class="p-why">💡 ${p.why}</div>
+     </div>`).join("") + `</div>`;
+
+  document.getElementById("quiz").classList.add("hide");
+  document.getElementById("home").classList.add("hide");
+  document.getElementById("result").classList.remove("hide");
+  document.getElementById("step1").innerHTML = s1;
+  document.getElementById("step2").innerHTML = s2;
+  document.getElementById("step3").innerHTML = s3;
+  document.getElementById("step4").innerHTML = s4;
+  document.getElementById("finalNote").innerHTML =
+    "套餐池与热量数据来自麦当劳官方 MCP（list-nutrition-foods 实时拉取，含安格斯系列、脆汁鸡、叠叠卷及果然多肉/苹板支撑Pro/专薯鱼你/绝代双翅/牛气满满等新品组合）；价格为单点近似价，券为内置模拟券——提供城市或地址后可换绑真实门店价格与真实优惠券。";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function personName(score){
+  const hot = Object.entries(score).filter(([k]) => k !== "_lucky").sort((a,b)=>b[1]-a[1])[0];
+  if (!hot || hot[1] < 1.5) return "均衡随缘型胃口";
+  return { meat:"无肉不欢 · 干饭猛兽", salty:"重口上头 · 刺激猎人", sweet:"糖分依存 · 快乐信徒",
+           fresh:"轻盈清爽 · 果蔬派", cool:"冰爽成瘾 · 透心凉星人", hearty:"碳水虔诚 · 主食狂魔" }[hot[0]] || "均衡随缘型胃口";
+}
+
+/* 手气套餐：随机抽 1 套，可带预期价格 */
+function lucky(){
+  const b = parseFloat(document.getElementById("luckyBudget").value);
+  finish(null, true, isNaN(b) ? 0 : b);
+}
+</script>
+</body>
+</html>
