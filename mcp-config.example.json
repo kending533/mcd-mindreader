@@ -1,0 +1,21 @@
+{
+  "_comment": "二选一：方案 A 直连官方 MCP（大多数客户端可用）；方案 B 走本地桥接（适用于 Windows 客户端报 CRYPT_E_REVOCATION_OFFLINE 的情况）。Token 从 open.mcd.cn/mcp 申请。",
+  "mcpServers": {
+    "mcd-mcp": {
+      "type": "streamablehttp",
+      "url": "https://mcp.mcd.cn/mcp-servers/mcd-mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_MCP_TOKEN"
+      }
+    },
+    "_mcd-mcp-bridge": {
+      "_comment": "桥接方案（替换上面整个条目使用）：node >= 18，Token 走环境变量",
+      "type": "stdio",
+      "command": "node",
+      "args": ["scripts/mcd-bridge.js"],
+      "env": {
+        "MCD_MCP_TOKEN": "YOUR_MCP_TOKEN"
+      }
+    }
+  }
+}
